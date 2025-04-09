@@ -1,0 +1,7 @@
+data/
+runs/
+100_predictions_grid.png
+mnist_model.pth
+X_test.npy
+y_test.npy
+Bez tytułu.png

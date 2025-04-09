@@ -1,4 +1,20 @@
-# Przygotowanie danych, losowości i środowiska wykonawczego
+## Spis treści
+
+- [Przygotowanie danych, losowość i środowisko wykonawcze](#przygotowanie-danych-losowość-i-środowisko-wykonawcze)
+    - [Importy](#importy)
+    - [Losowość](#losowóść)
+    - [GPU](#gpu)
+    - [Przygotowanie danych](#przygotowywanie-danych)
+- [Architektura sieci neuronowej](#architektura-sieci-neuronowej)
+    - [Wyjaśnienie](#wyjaśnienie)
+    - [Przepływ danych przez sieć neuronową](#przepływ-danych-przez-sieć-neuronową)
+    - [Funkcja strary i optymalizator](#funckja-straty-i-optymalizator)
+    - [Trening modelu](#trening-modelu)
+    - [Testowanie modelu](#testowanie)
+    - [Zapisanie modelu](#zapisanie-modelu)
+- [Dokładność modelu](#dokładność-modelu)
+
+# Przygotowanie danych, losowość i środowisko wykonawcze
 
 ## Importy
 
@@ -74,7 +90,7 @@ Kernel - jest to maly "filtr" który przesuwa się po obrazku i wyciąga cechy z
 
 FC Layers - łączy cechy wyciągnięte przez każdy filtr
 
-Regularyzacja służy do "wyłączenia" części neuronów aby inne neurony nauczyły się bardziej ogólnych cech. Gdybyśmy nie stosowali regularyzacji to model byłby wstanie tylko rozróźnić tylko zdjęcia z datasetu treningowego.
+Regularyzacja służy do "wyłączenia" części neuronów aby inne neurony nauczyły się bardziej ogólnych cech. Gdybyśmy nie stosowali regularyzacji to model mógłby się przeuczyć i odnjadywałby wyłącznie mniej skomplikowane cechy.
 
 Funckja aktywacji - umożliwia uczenie się nieliniowych wartości
 
@@ -87,14 +103,13 @@ self.pool = nn.MaxPool2d(2, 2) # Z mapy cech przechodzimy filtrem 2x2 i wybieram
 self.flatten = nn.Flatten() # Spłaszczamy tensor
 self.dropout1 = nn.Dropout(0.25) # Regularyzacja - zerujemy 25% neuronów. Podczas demonstracji można zmieniać wartość aby zobaczyć wynik
 self.fc1 = nn.Linear(64 * 14 * 14, 128) # Sieć fc
-self.dropout2 = nn.Dropout(0.5) # Regularyzacja - zerujemy 50% neuronów. Podczas demonstracji można zmieniać wartość aby zobaczyć wynik
-self.fc2 = nn.Linear(128, 10) # Sieć fc
+self.dropout2 = nn.Dropout(0.5) # Regularyzacja - zerujemy 50% neuronów, aby model się nie przeuczył.
 self.relu = nn.ReLU() # Funkcja aktywacji
 ```
 
 ![Funkcja ReLU](ReLU.webp)
 
-### Przepływ przez sieć neuronową
+### Przepływ danych przez sieć neuronową
 
 Ustalamy konstrukcję sieci neuronowej
 
@@ -114,6 +129,11 @@ def forward(self, x):
 ## Funckja straty i optymalizator
 
 Bardzo często funkcja straty definiuje się jako [entropię krzyżową](https://en.wikipedia.org/wiki/Cross-entropy). Zazwyczaj najlepszym optymalizatorem jest [Adam](https://medium.com/@weidagang/demystifying-the-adam-optimizer-in-machine-learning-4401d162cb9e), drugim najczęscięj używanym algorytmem optymalizacyjnym jest [AdamW](https://medium.com/@fernando.dijkinga/the-adamw-optimizer-8ebbd7e1017b)
+
+```python
+criterion = nn.CrossEntropyLoss() # Funckja straty
+optimizer = optim.Adam(model.parameters(), lr=0.0015) # Optymalizator, lr oznacza learning rate czyli z jakim przeskokiem uczy się model
+```
 
 
 ## Trening modelu
@@ -173,7 +193,7 @@ def train_model(model, trainloader, validloader, epochs=10):
 ```python
 train_losses, valid_losses, train_accuracies, valid_accuracies = train_model(model, trainloader, validloader, epochs=12)
 ```
-# Testowanie
+## Testowanie modelu
 
 ```python
 model.eval() # Tryb ewaluacji
@@ -192,5 +212,21 @@ test_loss = test_loss / len(testloader)
 test_acc = 100 * correct / total
 print(f"\nTest Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.2f}%")
 ```
+
+## Zapisanie modelu
+
+```python
+torch.save(model.state_dict(), "mnist_model.pth") # Zapisujemy model
+print("Model zapisany jako 'mnist_model.pth'")
+np.save("X_test.npy", testset.data.numpy()) # Zapsisujemy zbiór testowy
+np.save("y_test.npy", testset.targets.numpy()) # Zapisujemy klasy zbioru testowego
+print("Zapisano X_test i y_test")
+```
+
+# Dokładność modelu
+
+Dokładność tego modelu oscyluje w granicach 99% co jest dobrym wynikiem. Osiągnięcie 100% skuteczności jest niemożliwe, ponieważ niewyraźne pismo, szum wokół zdjęcia sprawiają, że model zaczyna się uczyć złych cech. Sama architektura sieci również ogranicza jej skuteczność, gdybyśmy dodali więcej warstw model wykrywałby mniej oczywiste wzorce. Regularyzacja modelu zeruje część neuronów, więc niektóre cechy są zapominane. Dostwosowanie hiperparametrów mogłoby zwiększyć dokładność modelu.
+
+
 
 Tutaj jeszcze napisać czemu nie ma 100% co można zmienić jakie hiperparametry zmienić, słowniczek, jak zapisać, jak używać
