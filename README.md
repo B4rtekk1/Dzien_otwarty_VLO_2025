@@ -14,6 +14,7 @@
     - [Zapisanie modelu](#zapisanie-modelu)
 - [Dokładność modelu](#dokładność-modelu)
 
+
 # Przygotowanie danych, losowość i środowisko wykonawcze
 
 ## Importy
@@ -228,5 +229,9 @@ print("Zapisano X_test i y_test")
 Dokładność tego modelu oscyluje w granicach 99% co jest dobrym wynikiem. Osiągnięcie 100% skuteczności jest niemożliwe, ponieważ niewyraźne pismo, szum wokół zdjęcia sprawiają, że model zaczyna się uczyć złych cech. Sama architektura sieci również ogranicza jej skuteczność, gdybyśmy dodali więcej warstw model wykrywałby mniej oczywiste wzorce. Regularyzacja modelu zeruje część neuronów, więc niektóre cechy są zapominane. Dostwosowanie hiperparametrów mogłoby zwiększyć dokładność modelu.
 
 
+# Testowanie na własnym piśmie
 
-Tutaj jeszcze napisać czemu nie ma 100% co można zmienić jakie hiperparametry zmienić, słowniczek, jak zapisać, jak używać
+Aby przetestować model na sobie należy odpalić np. photoshopa ustawić czarne tło o wymiarze 28 x 28 lub jego wielkokrotność, w ustawieniach pędzla wybrać shape dynamics, ustawić hardness na 20% i usatwić rozmiar pędzla na 2 lub odpowiednio więcej(najlepiej 14 razy mniejszy niż wymiar obrazu, np. jeśli rozmiar obrazu wynosi 56 x 56 to rozmiar pędzla powinien wynosić 4)
+
+![Hardness](brush_settings1.png)
+![Brush size](brush_settings2.png)
